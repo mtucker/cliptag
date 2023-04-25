@@ -1,0 +1,7 @@
+pillow
+torch
+clip
+transformers
+open_clip_torch
+gradio
+numpy
