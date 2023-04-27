@@ -5,3 +5,4 @@ transformers
 open_clip_torch
 gradio
 numpy
+nltk
