@@ -1,17 +1,16 @@
 import gradio as gr
-import numpy as np
 import torch 
-import open_clip
-from cliptag import ImageKeywordGenerator
 from cliptag.cliptag import CIImageKeywordGenerator
 from clip_interrogator import Config
 
-model = None
-preprocess = None
 device = None
 
-FEATURES_FILE_DIR = "features/test"
-TOP_K_LABELS = 10
+FEATURES_FILE_DIR = "features/photos"
+TOP_K_LABELS = 100
+CLIP_MODELS = [
+    "ViT-L-14/openai",
+    "ViT-B-32/laion2b_s34b_b79k"
+]
 
 print("loading model")
 if torch.cuda.is_available():
@@ -23,38 +22,27 @@ else:
     device = torch.device("cpu")
     print("Using CPU")
 
-# # Load the CLIP model and tokenizer
-# print("Loading model...")
+keyword_generators = []
+outputs = []
 
-# model, _, preprocess = open_clip.create_model_and_transforms(
-#     'ViT-B-32', 
-#     pretrained='laion2b_s34b_b79k',
-#     device=device
-# )
-
-# ikg = ImageKeywordGenerator(model, preprocess, device, FEATURES_FILE_DIR)
-cikg = CIImageKeywordGenerator(FEATURES_FILE_DIR, Config(caption_model_name=None, device=device))
-
-config2 = Config(clip_model_name="ViT-B-32/laion2b_s34b_b79k", caption_model_name=None, device=device)
-cikg2 = CIImageKeywordGenerator(FEATURES_FILE_DIR, config2)
+for clip_model_name in CLIP_MODELS:
+    config = Config(clip_model_name=clip_model_name, caption_model_name=None, device=device)
+    keyword_generators.append(CIImageKeywordGenerator(FEATURES_FILE_DIR, config))
+    outputs.append(gr.Label(label=f"{clip_model_name} Image Keywords", num_top_classes=TOP_K_LABELS))
 
 def keywords(input_image):
-    # ikg_labels = ikg.generate_keywords_for_image(input_image, top_k=TOP_K_LABELS)
-    cikg_labels = cikg.generate_keywords_for_image(input_image, top_k=TOP_K_LABELS)
-    cikg2_labels = cikg2.generate_keywords_for_image(input_image, top_k=TOP_K_LABELS)
+    labels = []
 
-    return cikg_labels, cikg2_labels
+    for keyword_generator in keyword_generators:
+        labels.append(keyword_generator.generate_keywords_for_image(input_image, top_k=TOP_K_LABELS))
 
+    return labels
 
 print("loading interface")
 demo = gr.Interface(
     fn=keywords, 
     inputs=gr.Image(type='pil', label="Image"), 
-    outputs=[
-        # gr.Label(label="My Algo Image Keywords", num_top_classes=TOP_K_LABELS), 
-        gr.Label(label="CI V14 Image Keywords", num_top_classes=TOP_K_LABELS),
-        gr.Label(label="CI V32 Image Keywords", num_top_classes=TOP_K_LABELS)
-    ]
+    outputs=outputs
 )
 
 if __name__ == "__main__":

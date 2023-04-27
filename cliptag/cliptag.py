@@ -4,7 +4,7 @@ import torch
 import open_clip
 import os
 from clip_interrogator import Config, Interrogator, LabelTable, load_list
-import tqdm
+from tqdm import tqdm
 
 def load_keywords_from_files(directory):
     keyword_list = []
@@ -110,7 +110,8 @@ class CIImageKeywordGenerator:
         if not config:
             config = Config(caption_model_name=None)
         self.ci = CIInterrogator(config)
-        self.table = LabelTable(load_keywords_from_files(features_file_dir), 'terms', self.ci)
+        cache_desc = features_file_dir.replace('/', '_')
+        self.table = LabelTable(load_keywords_from_files(features_file_dir), cache_desc, self.ci)
         self.device = self.table.device
         self.chunk_size = self.table.chunk_size
         self.config = self.table.config
@@ -147,12 +148,11 @@ class CIImageKeywordGenerator:
             start = chunk_idx*self.chunk_size
             stop = min(start+self.chunk_size, len(self.embeds))
             tops = self._rank(image_features, self.embeds[start:stop], top_count=keep_per_chunk, reverse=reverse)
-            top_labels.extend([self.labels[start+i] for i in tops])
-            top_embeds.extend([self.embeds[start+i] for i in tops])
+            top_labels.extend([self.labels[start+i] for _, i in tops])
+            top_embeds.extend([self.embeds[start+i] for _, i in tops])
 
         tops = self._rank(image_features, top_embeds, top_count=top_count)
-        print(f"tops: {tops}")
-        return [top_labels[i] for i in tops]
+        return {self.labels[i]: val for val, i in tops}
 
 
     def generate_keywords_for_image(self, image, top_k=5):
