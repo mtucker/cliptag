@@ -1,1 +1,1 @@
-from .cliptag import ImageKeywordGenerator
+from .cliptag import ImageKeywordGenerator, load_keywords_from_files
