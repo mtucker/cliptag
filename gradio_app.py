@@ -65,11 +65,11 @@ print("loading interface")
 with gr.Blocks() as demo:
     gr.Markdown("Upload an image below to generate keywords using different CLIP model versions.")
     inp = gr.Image(type='pil', label="Image")
+    btn = gr.Button("Generate Keywords")
     gr.Examples(
         examples=examples,
         inputs=inp,
     )
-    btn = gr.Button("Generate Keywords")
     with gr.Row():
         for clip_model_name in CLIP_MODELS:
             output = gr.Label(label=f"{clip_model_name} Image Keywords", num_top_classes=TOP_K_LABELS)
