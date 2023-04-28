@@ -38,7 +38,7 @@ def load_clip_generators(clip_model_names, feature_files_dir, device, cache_dir)
       keyword_generators = []
 
       for clip_model_name in clip_model_names:
-          config = Config(clip_model_name=clip_model_name, caption_model_name=None, device=device, cache_dir=embeds_cache_dir)
+          config = Config(clip_model_name=clip_model_name, caption_model_name=None, device=device, cache_path=embeds_cache_dir)
           keyword_generators.append(ImageKeywordGenerator(feature_files_dir, config))
 
       with open(pickled_generators, "wb") as f:
