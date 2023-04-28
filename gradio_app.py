@@ -43,6 +43,23 @@ def keywords(input_image):
 
     return labels
 
+def generate_keywords(keyword_generator, input_image, top_k):
+    return keyword_generator.generate_keywords_for_image(input_image, top_k=top_k)
+
+def keywords_para(input_image):
+    labels = []
+
+    # Use ThreadPoolExecutor to parallelize keyword generation
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Use a lambda to pass the required arguments to the generate_keywords function
+        tasks = [executor.submit(generate_keywords, kg, input_image, TOP_K_LABELS) for kg in keyword_generators]
+
+        # Collect the results
+        for future in concurrent.futures.as_completed(tasks):
+            labels.append(future.result())
+
+    return labels
+
 print("loading interface")
 
 with gr.Blocks() as demo:
@@ -58,7 +75,7 @@ with gr.Blocks() as demo:
             output = gr.Label(label=f"{clip_model_name} Image Keywords", num_top_classes=TOP_K_LABELS)
             outputs.append(output)
 
-    btn.click(fn=keywords, inputs=inp, outputs=outputs)
+    btn.click(fn=keywords_para, inputs=inp, outputs=outputs)
 
 if __name__ == "__main__":
     print("launching interface")
