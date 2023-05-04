@@ -4,16 +4,16 @@ from nltk import pos_tag
 from nltk.tag.mapping import map_tag
 from nltk import download as nltk_download
 
-nltk_download('brown')
-nltk_download('averaged_perceptron_tagger')
-nltk_download('universal_tagset')
+nltk_download("brown")
+nltk_download("averaged_perceptron_tagger")
+nltk_download("universal_tagset")
 
 WORDS_FILE = "./features/words.txt"
-UNSUPPORTED_POS_TAGS = ['ADP', 'CONJ', 'DET', 'NUM', 'PRT', 'PRON', '.', 'X']
+UNSUPPORTED_POS_TAGS = ["ADP", "CONJ", "DET", "NUM", "PRT", "PRON", ".", "X"]
 TOP_K = 200000
 
 print("Extracting words from the Brown corpus...")
-words = brown.tagged_words(tagset='universal')
+words = brown.tagged_words(tagset="universal")
 
 # print("Part-of-speech tagging words...")
 # tagged_words = pos_tag(words, tagset='universal')
@@ -34,5 +34,5 @@ common_words = [word for word, _ in word_freqdist.most_common(TOP_K)]
 #   print(f"{word}")
 
 print("Writing common words to file...")
-with open(WORDS_FILE, 'w') as f:
+with open(WORDS_FILE, "w") as f:
     f.write("\n".join(common_words))
