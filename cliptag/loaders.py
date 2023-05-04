@@ -30,6 +30,9 @@ def load_clip_generators(clip_model_names, feature_files_dir, device, cache_dir)
     embeds_cache_dir = f"{cache_dir}/embeds"
     pickled_generators = f"{generator_cache_dir}/keyword_generators.pkl"
 
+    if not os.path.exists(generator_cache_dir):
+        os.makedirs(generator_cache_dir)
+
     if os.path.exists(pickled_generators):
         print("Loading models from file")
         with open(pickled_generators, "rb") as f:
