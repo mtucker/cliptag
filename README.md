@@ -9,6 +9,14 @@ app_file: gradio_app.py
 pinned: false
 ---
 
+# Cliptag
+
+This is a simple app that uses CLIP to generate tags for images.
+
+## On Hugging Face Spaces
+
+https://huggingface.co/spaces/mtuckah/cliptag
+
 ## Up and running
 
 Install dependencies:
